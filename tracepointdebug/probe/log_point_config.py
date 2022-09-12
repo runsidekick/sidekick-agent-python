@@ -29,6 +29,6 @@ class LogPointConfig(object):
             "expireCount": self.expire_hit_count,
             "disabled": self.disabled,
             "logExpression": self.log_expression,
-            "logExpression": self.log_level,
+            "logLevel": self.log_level,
             "stdoutEnabled": self.stdout_enabled
         }
