@@ -26,5 +26,6 @@ class TracePointConfig(object):
             "client": self.client,
             "expireCount": self.expire_hit_count,
             "disabled": self.disabled,
-            "tracingEnabled": self.tracing_enabled
+            "tracingEnabled": self.tracing_enabled,
+            "conditionExpression": self.cond
         }

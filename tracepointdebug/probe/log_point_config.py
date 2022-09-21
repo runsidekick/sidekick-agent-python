@@ -30,5 +30,6 @@ class LogPointConfig(object):
             "disabled": self.disabled,
             "logExpression": self.log_expression,
             "logLevel": self.log_level,
-            "stdoutEnabled": self.stdout_enabled
+            "stdoutEnabled": self.stdout_enabled,
+            "conditionExpression": self.cond
         }
