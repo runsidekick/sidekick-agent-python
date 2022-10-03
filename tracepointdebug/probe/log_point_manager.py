@@ -4,6 +4,7 @@ from tracepointdebug.probe import errors
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.log_point import LogPoint
 from tracepointdebug.probe.log_point_config import LogPointConfig
+from tracepointdebug.probe.event.logpoint.log_point_event import LogPointEvent
 import logging
 
 logger = logging.getLogger(__name__)
@@ -95,7 +96,7 @@ class LogPointManager(object):
 
     def publish_event(self, event):
         try:
-            if self.broker_manager._log_data_redaction_callback:
+            if self.broker_manager._log_data_redaction_callback and isinstance(e, LogPointEvent):
                 self.broker_manager._log_data_redaction_callback({
                     "file_name": event.file,
                     "line_no": event.line_no,
