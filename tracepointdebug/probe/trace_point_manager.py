@@ -95,12 +95,17 @@ class TracePointManager(object):
     def publish_event(self, event):
         try:
             if self.broker_manager._tracepoint_data_redaction_callback and isinstance(event, TracePointSnapshotEvent):
-                self.broker_manager._tracepoint_data_redaction_callback({
+                trace_redaction = {
                     "file_name": event.file,
                     "line_no": event.line_no,
                     "method_name": event.method_name,
                     "frames": event.frames
-                })
+                }
+                self.broker_manager._tracepoint_data_redaction_callback()
+                event.file = trace_redaction["file_name"]
+                event.line_no = trace_redaction["line_no"]
+                event.method_name = trace_redaction["method_name"]
+                event.frames = trace_redaction["frames"]
         except Exception as e:
             logger.error("Error for external processing tracepoint with callbacks %s" % e)
         self.broker_manager.publish_event(event)

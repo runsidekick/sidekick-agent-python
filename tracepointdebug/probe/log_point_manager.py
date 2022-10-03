@@ -97,12 +97,17 @@ class LogPointManager(object):
     def publish_event(self, event):
         try:
             if self.broker_manager._log_data_redaction_callback and isinstance(event, LogPointEvent):
-                self.broker_manager._log_data_redaction_callback({
+                log_redaction = {
                     "file_name": event.file,
                     "line_no": event.line_no,
                     "method_name": event.method_name,
                     "log_message": event.log_message,
-                })
+                }
+                self.broker_manager._log_data_redaction_callback(log_redaction)
+                event.file = log_redaction["file_name"]
+                event.line_no = log_redaction["line_no"]
+                event.method_name = log_redaction["method_name"]
+                event.log_message = log_redaction["log_message"]
         except Exception as e:
             logger.error("Error for external processing log in log manager with callback %s" % e)
         self.broker_manager.publish_event(event)
