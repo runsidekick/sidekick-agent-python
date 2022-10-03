@@ -96,7 +96,7 @@ class LogPointManager(object):
 
     def publish_event(self, event):
         try:
-            if self.broker_manager._log_data_redaction_callback and isinstance(e, LogPointEvent):
+            if self.broker_manager._log_data_redaction_callback and isinstance(event, LogPointEvent):
                 self.broker_manager._log_data_redaction_callback({
                     "file_name": event.file,
                     "line_no": event.line_no,
