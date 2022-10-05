@@ -8,6 +8,10 @@ CONFIG_METADATA = {
         'type': 'boolean',
         'defaultValue': False,
     },
+    config_names.SIDEKICK_ERROR_STACK_ENABLE: {
+        'type': 'boolean',
+        'defaultValue': False,
+    },
     config_names.SIDEKICK_APPLICATION_ID: {
         'type': 'string',
     },
