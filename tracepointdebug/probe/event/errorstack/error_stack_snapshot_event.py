@@ -28,5 +28,6 @@ class ErrorStackSnapshotEvent(BaseEvent):
             "applicationName": self.application_name,
             "time": self.time,
             "hostName": self.hostname,
-            "frames": self.frames
+            "frames": self.frames,
+            "error": self.error
         }

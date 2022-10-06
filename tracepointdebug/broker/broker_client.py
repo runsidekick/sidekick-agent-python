@@ -156,7 +156,7 @@ class BrokerConnection:
         try:
             self.ws.send(data)
         except websocket.WebSocketConnectionClosedException as e:
-            logger.error("Error sending %s" % e)
+            debug_logger("Error sending %s" % e)
 
     def close(self):
         self.error_printed = False

@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 _MAX_SNAPSHOT_SIZE = 32768
 _MAX_FRAMES = 10
 _MAX_EXPAND_FRAMES = 2
-_MAX_TIME_TO_ALIVE = 3 * 60
+_MAX_TIME_TO_ALIVE = 5 * 60
+_MAX_FRAME_SIZE_FOR_EVENT = 2
 
 class ErrorStackManager(object):
     __instance = None
@@ -27,7 +28,6 @@ class ErrorStackManager(object):
         self.broker_manager = broker_manager
         self.old_settrace = sys.gettrace()
         self.old_threading = threading._trace_hook
-        self._lock = threading.Lock()
         self.condition = None
         self.timer = None
         self.rate_limiter = RateLimiter()
@@ -46,43 +46,48 @@ class ErrorStackManager(object):
     def _get_point_cache_id(self, frame):
         return frame.f_code.co_filename + ":::" + str(frame.f_lineno)
 
-    def _check_point_rate_limit(self, frame):
-        with self._lock:
-            error_point_id = self._get_point_cache_id(frame)
-            if error_point_id not in self.ttl_cache:
-                self.ttl_cache[error_point_id] = RateLimiter() 
-            return self.ttl_cache[error_point_id].check_rate_limit(time.time())
+    def _check_point_inserted(self, frame):
+        error_point_id = self._get_point_cache_id(frame)
+        item = self.ttl_cache.get(error_point_id, None)
+        if item is None:
+            self.ttl_cache[error_point_id] = True
+            return True
+        return False
 
     def trace_hook(self, frame, event, arg):
-        frame.f_trace = self._frame_hook
+        return self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
         try:
             if event != "exception": 
                 return
+            frame.f_trace_lines = False
             frame_file_name = frame.f_code.co_filename
             frame_line_no = frame.f_lineno
             rate_limit_result_for_frame_call = self.rate_limiter.check_rate_limit(time.time())
-            rate_limit_result_for_point = self._check_point_rate_limit(frame)
+            check_point_already_inserted = self._check_point_inserted(frame)
+            if frame_line_no != 21: return
+            if (check_point_already_inserted):
+                return
 
-            if (rate_limit_result_for_frame_call == RateLimitResult.HIT or 
-                    rate_limit_result_for_frame_call == RateLimitResult.HIT):
+            if (rate_limit_result_for_frame_call == RateLimitResult.HIT):
                 event = ErrorStackRateLimitEvent(frame_file_name, frame_line_no)
                 self._publish_event(event)
 
-            if (rate_limit_result_for_frame_call == RateLimitResult.EXCEEDED or 
-                    rate_limit_result_for_point == RateLimitResult.EXCEEDED):
+            if (rate_limit_result_for_frame_call == RateLimitResult.EXCEEDED):
                 return
             snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
             snapshot = snapshot_collector.collect(frame)
+            frames = snapshot.frames if len(snapshot.frames) <= _MAX_FRAME_SIZE_FOR_EVENT else snapshot.frames[:_MAX_FRAME_SIZE_FOR_EVENT]
             error_stack_id = self.get_id(frame_file_name, frame_line_no)
+            stack = traceback.extract_tb(arg[2])
             error = {
-                "name": arg[0],
+                "name": str(arg[0]) or "Error",
                 "message": str(arg[1]),
-                "stack": str(traceback.extract_tb(arg[2]))
+                "stack": str(stack[0]) if stack else ""
             }
             event = ErrorStackSnapshotEvent(error_stack_id, frame_file_name, frame_line_no, method_name=snapshot.method_name,
-                                            error=error, frames=snapshot.frames)
+                                            error=error, frames=frames)
 
             self._publish_event(event)
         except Exception as exc:
@@ -101,7 +106,7 @@ class ErrorStackManager(object):
     def shutdown(self):
         if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
             sys.settrace(self.old_settrace)
-            threading.settrace(self.old_threading)
+            threading.settrace(self.old_settrace)
 
     def _publish_event(self, event):
         self.broker_manager.publish_event(event)

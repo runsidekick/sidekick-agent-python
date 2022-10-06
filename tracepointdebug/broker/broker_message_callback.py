@@ -10,6 +10,7 @@ from tracepointdebug.probe.handler.request.logPoint.put_log_point_request_handle
 from tracepointdebug.probe.handler.request.logPoint.remove_log_point_request_handler import RemoveLogPointRequestHandler
 from tracepointdebug.probe.handler.request.logPoint.update_log_point_request_handler import UpdateLogPointRequestHandler
 from tracepointdebug.probe.handler.response.filter_logpoints_response_handler import FilterLogPointsResponseHandler
+from tracepointdebug.utils import debug_logger
 
 MESSAGE_REQUEST_TYPE = "Request"
 MESSAGE_RESPONSE_TYPE = "Response"
@@ -50,7 +51,7 @@ class BrokerMessageCallback(object):
                     serialized = to_json(response)
                     broker_client.send(serialized)
                 else:
-                    print("No request handler could be found for message with name {}: {}".format(message.get("name"),
+                    debug_logger("No request handler could be found for message with name {}: {}".format(message.get("name"),
                                                                                               message))
             elif message_type == MESSAGE_RESPONSE_TYPE:
                 handler = RESPONSE_HANDLER_MAP.get(message.get("name"))
@@ -58,8 +59,7 @@ class BrokerMessageCallback(object):
                     response = handler.get_response_cls()(**message)
                     handler.handle_response(response)
                 else:
-                    print("No response handler could be found for message with name {}: {}".format(message.get("name"),
+                    debug_logger("No response handler could be found for message with name {}: {}".format(message.get("name"),
                                                                                               message))
-
         except Exception as e:
-            print(e)
+            debug_logger(e)
