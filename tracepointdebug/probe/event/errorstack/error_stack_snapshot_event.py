@@ -4,13 +4,14 @@ from tracepointdebug.broker.event.base_event import BaseEvent
 class ErrorStackSnapshotEvent(BaseEvent):
     EVENT_NAME = "ErrorStackSnapshotEvent"
 
-    def __init__(self, error_stack_id, file, line_no, method_name, log_message, created_at):
+    def __init__(self, error_stack_id, file, line_no, method_name, error, frames):
         super(ErrorStackSnapshotEvent, self).__init__()
         self.error_stack_id = error_stack_id
         self.file = file
         self.line_no = line_no
         self.method_name = method_name
-        self.created_at = created_at
+        self.error = error
+        self.frames = frames
 
     def to_json(self):
         return {
@@ -27,5 +28,5 @@ class ErrorStackSnapshotEvent(BaseEvent):
             "applicationName": self.application_name,
             "time": self.time,
             "hostName": self.hostname,
-            "createdAt": self.created_at
+            "frames": self.frames
         }

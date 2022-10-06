@@ -104,7 +104,6 @@ class BrokerManager(object):
         event.application_instance_id = application_info['applicationInstanceId']
         event.application_name = application_info['applicationName']
 
-
     def do_publish_event(self, event):
         self.prepare_event(event)
         try:

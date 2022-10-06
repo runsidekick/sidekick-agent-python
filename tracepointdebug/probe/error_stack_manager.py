@@ -1,3 +1,4 @@
+import time, traceback
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.event.errorstack.error_stack_rate_limit_event import ErrorStackRateLimitEvent
@@ -9,7 +10,6 @@ from tracepointdebug.probe.snapshot_collector import SnapshotCollector
 import logging, sys, threading
 from tracepointdebug.config import config_names
 from tracepointdebug.config.config_provider import ConfigProvider
-
 from datetime import datetime as dt
 from cachetools import TTLCache
 
@@ -40,8 +40,8 @@ class ErrorStackManager(object):
                                  **kwargs) if ErrorStackManager.__instance is None else ErrorStackManager.__instance
 
     @staticmethod
-    def get_id(file, line, client):
-        return '{}:{}:{}:{}'.format(file, line, client, str(dt.now()))
+    def get_id(file, line):
+        return '{}:{}:{}'.format(file, line, str(dt.now()))
 
     def _get_point_cache_id(self, frame):
         return frame.f_code.co_filename + ":::" + str(frame.f_lineno)
@@ -68,18 +68,23 @@ class ErrorStackManager(object):
             if (rate_limit_result_for_frame_call == RateLimitResult.HIT or 
                     rate_limit_result_for_frame_call == RateLimitResult.HIT):
                 event = ErrorStackRateLimitEvent(frame_file_name, frame_line_no)
-                self.error_stack_manager.publish_event(event)
+                self._publish_event(event)
 
             if (rate_limit_result_for_frame_call == RateLimitResult.EXCEEDED or 
                     rate_limit_result_for_point == RateLimitResult.EXCEEDED):
                 return
             snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
             snapshot = snapshot_collector.collect(frame)
-            error_stack_id = self.get_id()
+            error_stack_id = self.get_id(frame_file_name, frame_line_no)
+            error = {
+                "name": arg[0],
+                "message": str(arg[1]),
+                "stack": str(traceback.extract_tb(arg[2]))
+            }
             event = ErrorStackSnapshotEvent(error_stack_id, frame_file_name, frame_line_no, method_name=snapshot.method_name,
-                                            frames=snapshot.frames)
+                                            error=error, frames=snapshot.frames)
 
-            self.error_stack_manager.publish_event(event)
+            self._publish_event(event)
         except Exception as exc:
             logger.warning('Error on error stack snapshot %s' % exc)
             code = 0

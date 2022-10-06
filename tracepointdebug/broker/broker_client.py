@@ -137,6 +137,8 @@ class BrokerConnection:
         if not self.error_printed:
             logger.error("Error on connection, msg: {}".format(msg))
             self.error_printed = True
+        else:
+            debug_logger("Error on connection, msg: {}".format(msg))
 
     def on_close(self, ws):
         self.error_printed = False
