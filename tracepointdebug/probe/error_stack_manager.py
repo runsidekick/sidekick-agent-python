@@ -66,7 +66,7 @@ class ErrorStackManager(object):
             frame_line_no = frame.f_lineno
             rate_limit_result_for_frame_call = self.rate_limiter.check_rate_limit(time.time())
             check_point_already_inserted = self._check_point_inserted(frame)
-            if frame_line_no != 21: return
+
             if (check_point_already_inserted):
                 return
 
