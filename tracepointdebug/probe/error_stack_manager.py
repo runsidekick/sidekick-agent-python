@@ -87,7 +87,7 @@ class ErrorStackManager(object):
                 return
 
             frames = []
-            if ConfigProvider.get(config_names.SIDEKICK_ERROR_FRAME_COLLECTION_ENABLE):
+            if ConfigProvider.get(config_names.SIDEKICK_ERROR_FRAME_COLLECTION_ENABLE, False):
                 snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
                 snapshot = snapshot_collector.collect(frame)
                 frames = snapshot.frames
