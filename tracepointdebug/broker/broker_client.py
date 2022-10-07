@@ -157,6 +157,7 @@ class BrokerConnection:
             if self.ws.sock.connected:
                 self.ws.send(data)
             else:
+                logger.info("Socket is closed. To see data please set SIDEKICK_DEBUG_ENABLE to True!")
                 debug_logger("Socket is already closed while sending data: %s" % data)
         except websocket.WebSocketConnectionClosedException as e:
             debug_logger("Error sending %s" % e)
