@@ -12,7 +12,7 @@ from tracepointdebug.config import config_names
 from tracepointdebug.config.config_provider import ConfigProvider
 from datetime import datetime as dt
 from cachetools import TTLCache
-import datetime
+import datetime, os
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,17 @@ class ErrorStackManager(object):
             return False
         return True
 
+    def _white_list_exceptions(self, frame):
+        frame_file_path = os.path.abspath(frame.f_code.co_filename)
+        blacklist = ["python", "site-packages", "importlib", "tracepointdebug"]
+        for black in blacklist:
+            if black in frame_file_path:
+                return False
+        return True
+
     def trace_hook(self, frame, event, arg):
+        if not self._white_list_exceptions(frame):
+            return
         return self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
