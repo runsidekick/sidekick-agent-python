@@ -154,7 +154,10 @@ class BrokerConnection:
 
     def send(self, data):
         try:
-            self.ws.send(data)
+            if self.ws.sock.connected:
+                self.ws.send(data)
+            else:
+                debug_logger("Socket is already closed while sending data: %s" % data)
         except websocket.WebSocketConnectionClosedException as e:
             debug_logger("Error sending %s" % e)
 
