@@ -1,4 +1,4 @@
-import json
+import json, pickle
 from tracepointdebug.utils import debug_logger
 
 class JSONEncoder(json.JSONEncoder):
@@ -11,7 +11,7 @@ class JSONEncoder(json.JSONEncoder):
             else:
                 return super(JSONEncoder, self).default(z)
         except Exception as e:
-            debug_logger(e)
+            print(f'[JSONEncoder ERROR] {e}')
 
 
 def to_json(data, separators=None):

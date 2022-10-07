@@ -12,14 +12,14 @@ from tracepointdebug.config import config_names
 from tracepointdebug.config.config_provider import ConfigProvider
 from datetime import datetime as dt
 from cachetools import TTLCache
+import datetime
 
 logger = logging.getLogger(__name__)
 
 _MAX_SNAPSHOT_SIZE = 32768
 _MAX_FRAMES = 10
 _MAX_EXPAND_FRAMES = 2
-_MAX_TIME_TO_ALIVE = 5 * 60
-_MAX_FRAME_SIZE_FOR_EVENT = 2
+_MAX_TIME_TO_ALIVE_MIN = 5
 
 class ErrorStackManager(object):
     __instance = None
@@ -31,7 +31,7 @@ class ErrorStackManager(object):
         self.condition = None
         self.timer = None
         self.rate_limiter = RateLimiter()
-        self.ttl_cache = TTLCache(maxsize=128, ttl=_MAX_TIME_TO_ALIVE)
+        self.ttl_cache = TTLCache(maxsize=2048, ttl=datetime.timedelta(minutes=_MAX_TIME_TO_ALIVE_MIN), timer=datetime.datetime.now)
         ErrorStackManager.__instance = self
 
     @staticmethod
@@ -51,8 +51,8 @@ class ErrorStackManager(object):
         item = self.ttl_cache.get(error_point_id, None)
         if item is None:
             self.ttl_cache[error_point_id] = True
-            return True
-        return False
+            return False
+        return True
 
     def trace_hook(self, frame, event, arg):
         return self._frame_hook
@@ -61,7 +61,6 @@ class ErrorStackManager(object):
         try:
             if event != "exception": 
                 return
-            frame.f_trace_lines = False
             frame_file_name = frame.f_code.co_filename
             frame_line_no = frame.f_lineno
             rate_limit_result_for_frame_call = self.rate_limiter.check_rate_limit(time.time())
@@ -76,19 +75,20 @@ class ErrorStackManager(object):
 
             if (rate_limit_result_for_frame_call == RateLimitResult.EXCEEDED):
                 return
-            snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
-            snapshot = snapshot_collector.collect(frame)
-            frames = snapshot.frames if len(snapshot.frames) <= _MAX_FRAME_SIZE_FOR_EVENT else snapshot.frames[:_MAX_FRAME_SIZE_FOR_EVENT]
+
+            frames = []
+            if ConfigProvider.get(config_names.SIDEKICK_ERROR_FRAME_COLLECTION_ENABLE):
+                snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
+                snapshot = snapshot_collector.collect(frame)
+                frames = snapshot.frames
             error_stack_id = self.get_id(frame_file_name, frame_line_no)
-            stack = traceback.extract_tb(arg[2])
             error = {
                 "name": str(arg[0]) or "Error",
                 "message": str(arg[1]),
-                "stack": str(stack[0]) if stack else ""
+                "stack": str(traceback.extract_tb(arg[2]))
             }
-            event = ErrorStackSnapshotEvent(error_stack_id, frame_file_name, frame_line_no, method_name=snapshot.method_name,
+            event = ErrorStackSnapshotEvent(error_stack_id, frame_file_name, frame_line_no, method_name=frame.f_code.co_name,
                                             error=error, frames=frames)
-
             self._publish_event(event)
         except Exception as exc:
             logger.warning('Error on error stack snapshot %s' % exc)
