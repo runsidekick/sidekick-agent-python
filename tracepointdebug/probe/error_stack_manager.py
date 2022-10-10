@@ -30,6 +30,7 @@ class ErrorStackManager(object):
         self.old_threading = threading._trace_hook
         self.condition = None
         self.timer = None
+        self.sidekick_exception = "sidekickException"
         self.rate_limiter = RateLimiter()
         self.ttl_cache = TTLCache(maxsize=2048, ttl=datetime.timedelta(minutes=_MAX_TIME_TO_ALIVE_MIN), timer=datetime.datetime.now)
         ErrorStackManager.__instance = self
@@ -63,14 +64,15 @@ class ErrorStackManager(object):
         return True
 
     def trace_hook(self, frame, event, arg):
-        if not self._white_list_exceptions(frame):
+        if not self._white_list_exceptions(frame) or frame.f_globals.get(self.sidekick_exception, None):
             return
         return self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
         try:
-            if event != "exception": 
+            if event != "exception" or frame.f_globals.get(self.sidekick_exception, None):
                 return
+            frame.f_globals[self.sidekick_exception] = True
             frame_file_name = frame.f_code.co_filename
             frame_line_no = frame.f_lineno
             rate_limit_result_for_frame_call = self.rate_limiter.check_rate_limit(time.time())
