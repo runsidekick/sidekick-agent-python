@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 _MAX_SNAPSHOT_SIZE = 32768
 _MAX_FRAMES = 10
 _MAX_EXPAND_FRAMES = 2
-_MAX_TIME_TO_ALIVE_MIN = 5
+_MAX_TIME_TO_ALIVE_MIN = 1
 
 class ErrorStackManager(object):
     __instance = None
@@ -51,6 +51,7 @@ class ErrorStackManager(object):
         error_point_id = self._get_point_cache_id(frame)
         item = self.ttl_cache.get(error_point_id, None)
         if item is None:
+            print(f'Item is None for: {error_point_id}')
             self.ttl_cache[error_point_id] = True
             return False
         return True
@@ -65,8 +66,10 @@ class ErrorStackManager(object):
 
     def trace_hook(self, frame, event, arg):
         if not self._white_list_exceptions(frame) or frame.f_globals.get(self.sidekick_exception, None):
+            if frame.f_globals.get(self.sidekick_exception, None):
+                del frame.f_globals[self.sidekick_exception]
             return
-        return self._frame_hook
+        frame.f_trace = self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
         try:
