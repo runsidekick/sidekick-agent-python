@@ -5,6 +5,8 @@ from threading import Thread
 from time import sleep
 
 import websocket
+from tracepointdebug.config import config_names
+from tracepointdebug.config.config_provider import ConfigProvider
 
 from tracepointdebug.utils import debug_logger
 from tracepointdebug.broker.ws_app import WSApp
@@ -157,7 +159,9 @@ class BrokerConnection:
             if self.ws.sock.connected:
                 self.ws.send(data)
             else:
-                debug_logger("Socket is already closed while sending data: %s" % data)
+                if ConfigProvider.get(config_names.SIDEKICK_PRINT_DEBUG_DATA, False):
+                    debug_logger("Socket is already closed while sending data: %s" % data)
+                debug_logger("Socket is already closed while sending data to see data set SIDEKICK_PRINT_DEBUG_DATA to True!")
         except websocket.WebSocketConnectionClosedException as e:
             debug_logger("Error sending %s" % e)
 

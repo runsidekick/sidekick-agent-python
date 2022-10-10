@@ -16,6 +16,10 @@ CONFIG_METADATA = {
         'type': 'boolean',
         'defaultValue': False,
     },
+    config_names.SIDEKICK_PRINT_DEBUG_DATA: {
+        'type': 'boolean',
+        'defaultValue': False,
+    },
     config_names.SIDEKICK_APPLICATION_ID: {
         'type': 'string',
     },
