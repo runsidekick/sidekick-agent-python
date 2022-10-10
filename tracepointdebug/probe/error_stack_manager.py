@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 _MAX_SNAPSHOT_SIZE = 32768
 _MAX_FRAMES = 10
 _MAX_EXPAND_FRAMES = 2
-_MAX_TIME_TO_ALIVE_MIN = 1
+_MAX_TIME_TO_ALIVE_MIN = 5
 
 class ErrorStackManager(object):
     __instance = None
@@ -64,17 +64,14 @@ class ErrorStackManager(object):
         return True
 
     def trace_hook(self, frame, event, arg):
-        if not self._white_list_exceptions(frame) or frame.f_globals.get(self.sidekick_exception, None):
-            if frame.f_globals.get(self.sidekick_exception, None):
-                del frame.f_globals[self.sidekick_exception]
+        if not self._white_list_exceptions(frame):
             return
         frame.f_trace = self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
         try:
-            if event != "exception" or frame.f_globals.get(self.sidekick_exception, None):
+            if event != "exception":
                 return
-            frame.f_globals[self.sidekick_exception] = True
             frame_file_name = frame.f_code.co_filename
             frame_line_no = frame.f_lineno
             rate_limit_result_for_frame_call = self.rate_limiter.check_rate_limit(time.time())
