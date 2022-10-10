@@ -51,7 +51,6 @@ class ErrorStackManager(object):
         error_point_id = self._get_point_cache_id(frame)
         item = self.ttl_cache.get(error_point_id, None)
         if item is None:
-            print(f'Item is None for: {error_point_id}')
             self.ttl_cache[error_point_id] = True
             return False
         return True
