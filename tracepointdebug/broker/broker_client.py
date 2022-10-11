@@ -5,6 +5,8 @@ from threading import Thread
 from time import sleep
 
 import websocket
+from tracepointdebug.config import config_names
+from tracepointdebug.config.config_provider import ConfigProvider
 
 from tracepointdebug.utils import debug_logger
 from tracepointdebug.broker.ws_app import WSApp
@@ -38,6 +40,7 @@ class BrokerConnection:
         self.connection_timer = None
         self.connection_timeout = 10
         self.reconnect_interval = 3
+        self.error_printed = False
         self.connected = threading.Event()
         self.initial_request_to_broker = initial_request_to_broker
 
@@ -133,13 +136,19 @@ class BrokerConnection:
                 self._running = False
                 if self.ws:
                     self.ws.close()
-        logger.error("Error on connection, msg: {}".format(msg))
+        if not self.error_printed:
+            logger.error("Error on connection, msg: {}".format(msg))
+            self.error_printed = True
+        else:
+            debug_logger("Error on connection, msg: {}".format(msg))
 
     def on_close(self, ws):
+        self.error_printed = False
         debug_logger("Connection closed")
 
     def on_open(self, ws):
         debug_logger("Connection open")
+        self.error_printed = False
         self.connected.set()
         connection_set = self.connected.wait() #TODO Timeout
         if connection_set:
@@ -147,11 +156,17 @@ class BrokerConnection:
 
     def send(self, data):
         try:
-            self.ws.send(data)
+            if self.ws.sock.connected:
+                self.ws.send(data)
+            else:
+                if ConfigProvider.get(config_names.SIDEKICK_PRINT_CLOSED_SOCKET_DATA, False):
+                    print("Socket is already closed while sending data: %s" % data)
+                debug_logger("Socket is already closed while sending data to see data set SIDEKICK_PRINT_DEBUG_DATA to True!")
         except websocket.WebSocketConnectionClosedException as e:
-            logger.error("Error sending %s" % e)
+            debug_logger("Error sending %s" % e)
 
     def close(self):
+        self.error_printed = False
         self._running = False
         if self.ws:
             self.ws.close()

@@ -73,7 +73,8 @@ if sys.platform in ('darwin', 'linux2', 'linux'):
 
 install_requires = ['six >= 1.11',
                     'websocket-client >= 0.56.0',
-                    'pystache >= 0.6.0'
+                    'pystache >= 0.6.0',
+                    'cachetools >= 5.2.0'
                     ]
 
 if sys.version_info[0] == 2:

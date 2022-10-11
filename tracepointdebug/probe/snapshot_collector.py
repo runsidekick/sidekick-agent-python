@@ -53,7 +53,7 @@ class SnapshotCollector(object):
         variables = []
         for name, value in six.viewitems(frame_locals):
             val = self.collect_variable_value(value, 0, self.max_var_depth)
-            if val is not None:
+            if val is not None and type(value).__name__.find("byte") == -1:
                 variables.append(Variable(name, type(value).__name__, val))
         return Variables(variables)
 

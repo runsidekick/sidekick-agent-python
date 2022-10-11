@@ -1,0 +1,24 @@
+from tracepointdebug.broker.event.base_event import BaseEvent
+
+
+class ErrorStackRateLimitEvent(BaseEvent):
+    EVENT_NAME = "ErrorStackRateLimitEvent"
+
+    def __init__(self, file, line_no):
+        super(ErrorStackRateLimitEvent, self).__init__()
+        self.file = file
+        self.line_no = line_no
+
+    def to_json(self):
+        return {
+            "name": self.name,
+            "type": self.get_type(),
+            "id": self.id,
+            "fileName": self.file,
+            "lineNo": self.line_no,
+            "sendAck": self.send_ack,
+            "applicationInstanceId": self.application_instance_id,
+            "applicationName": self.application_name,
+            "time": self.time,
+            "hostName": self.hostname
+        }

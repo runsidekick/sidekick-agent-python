@@ -43,6 +43,8 @@ class BrokerManager(object):
         self.initialized = False
         self._event_executor = ThreadPoolExecutor()
         self._request_executor = ThreadPoolExecutor()
+        self._tracepoint_data_redaction_callback = None
+        self._log_data_redaction_callback = None
         import sys
         if sys.version_info[0] >= 3:
             self.application_status_thread = Thread(target=self.application_status_sender, daemon=True)
@@ -57,10 +59,14 @@ class BrokerManager(object):
         return BrokerManager() if BrokerManager.__instance is None else BrokerManager.__instance
 
 
-    def initialize(self):
+    def initialize(self, tracepoint_data_redaction_callback=None, log_data_redaction_callback=None):
         if not self.initialized:
             self.connect_to_broker()
             self.initialized = True
+            if callable(tracepoint_data_redaction_callback):
+                self._tracepoint_data_redaction_callback = tracepoint_data_redaction_callback
+            if callable(log_data_redaction_callback):
+                self._log_data_redaction_callback = log_data_redaction_callback
 
 
     def connect_to_broker(self):
@@ -97,7 +103,6 @@ class BrokerManager(object):
         application_info = Application.get_application_info()
         event.application_instance_id = application_info['applicationInstanceId']
         event.application_name = application_info['applicationName']
-
 
     def do_publish_event(self, event):
         self.prepare_event(event)
@@ -168,6 +173,5 @@ class BrokerManager(object):
 
         for status_provider in self.application_status_providers:
             status_provider.provide(application_status, client)
-
         event = ApplicationStatusEvent(client=client, application=application_status)
         self.publish_event(event)

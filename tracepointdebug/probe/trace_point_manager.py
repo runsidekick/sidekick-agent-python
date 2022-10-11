@@ -4,7 +4,10 @@ from tracepointdebug.probe import errors
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.trace_point import TracePoint
 from tracepointdebug.probe.trace_point_config import TracePointConfig
+from tracepointdebug.probe.event.trace_point_snapshot_event import TracePointSnapshotEvent
+import logging
 
+logger = logging.getLogger(__name__)
 
 class TracePointManager(object):
     __instance = None
@@ -90,6 +93,18 @@ class TracePointManager(object):
                 self._trace_points.pop(trace_point_id).remove_trace_point()
 
     def publish_event(self, event):
+        try:
+            if self.broker_manager._tracepoint_data_redaction_callback and isinstance(event, TracePointSnapshotEvent):
+                trace_redaction = {
+                    "file_name": event.file,
+                    "line_no": event.line_no,
+                    "method_name": event.method_name,
+                    "frames": event.frames
+                }
+                self.broker_manager._tracepoint_data_redaction_callback(trace_redaction)
+                event.frames = trace_redaction["frames"]
+        except Exception as e:
+            logger.error("Error for external processing tracepoint with callbacks %s" % e)
         self.broker_manager.publish_event(event)
 
     def publish_application_status(self, client=None):

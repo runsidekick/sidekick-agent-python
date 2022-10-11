@@ -1,5 +1,5 @@
 import json
-
+from tracepointdebug.utils import debug_logger
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, z):
@@ -11,7 +11,7 @@ class JSONEncoder(json.JSONEncoder):
             else:
                 return super(JSONEncoder, self).default(z)
         except Exception as e:
-            print(e)
+            debug_logger(e)
 
 
 def to_json(data, separators=None):
