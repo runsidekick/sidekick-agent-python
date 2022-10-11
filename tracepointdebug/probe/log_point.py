@@ -153,16 +153,16 @@ class LogPoint(object):
                 return
             snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
             snapshot = snapshot_collector.collect(frame)
-            if self.broker_manager.broker_manager._log_data_redaction_callback:
+            if self.log_point_manager.broker_manager._log_data_redaction_callback:
                 log_redaction = {
                     "file_name": self.config.get_file_name(),
                     "line_no": self.config.line,
-                    "method_bname"
+                    "method_name": snapshot.method_name,
                     "log_expression": self.config.log_expression,
                     "variables": f_variables
                 }
                 try:
-                    self.broker_manager._log_data_redaction_callback(log_redaction)
+                    self.log_point_manager.broker_manager._log_data_redaction_callback(log_redaction)
                     self.config.log_expression = log_redaction.get("log_expression", "")
                     f_variables = log_redaction.get("variables", {})
                 except Exception as e:
