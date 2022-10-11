@@ -117,7 +117,7 @@ class ErrorStackManager(object):
     def shutdown(self):
         if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
             sys.settrace(self.old_settrace)
-            threading.settrace(self.old_settrace)
+            threading.settrace(self.old_threading)
 
     def _publish_event(self, event):
         self.broker_manager.publish_event(event)

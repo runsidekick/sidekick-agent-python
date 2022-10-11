@@ -153,6 +153,17 @@ class LogPoint(object):
                 return
             snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
             snapshot = snapshot_collector.collect(frame)
+            if self.broker_manager.broker_manager._log_data_redaction_callback:
+                log_redaction = {
+                    "log_expression": self.config.log_expression,
+                    "variables": f_variables
+                }
+                try:
+                    self.broker_manager._log_data_redaction_callback(log_redaction)
+                    self.config.log_expression = log_redaction.get("log_expression", "")
+                    f_variables = log_redaction.get("variables", {})
+                except Exception as e:
+                    logger.error("Error for external processing log in log manager with callback %s" % e)
             log_message = pystache.render(self.config.log_expression, f_variables)
             created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
             event = LogPointEvent(log_point_id = self.id, 

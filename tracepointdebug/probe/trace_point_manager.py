@@ -102,9 +102,6 @@ class TracePointManager(object):
                     "frames": event.frames
                 }
                 self.broker_manager._tracepoint_data_redaction_callback(trace_redaction)
-                event.file = trace_redaction["file_name"]
-                event.line_no = trace_redaction["line_no"]
-                event.method_name = trace_redaction["method_name"]
                 event.frames = trace_redaction["frames"]
         except Exception as e:
             logger.error("Error for external processing tracepoint with callbacks %s" % e)
