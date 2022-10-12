@@ -39,8 +39,8 @@ class TracePointManager(object):
         with self._lock:
             if trace_point_id not in self._trace_points:
                 raise CodedException(errors.NO_TRACEPOINT_EXIST_WITH_ID, (trace_point_id, client))
-            trace_point = self._trace_points.pop(trace_point_id)
             self._delete_trace_point_tags(trace_point_id)
+            trace_point = self._trace_points.pop(trace_point_id)
             trace_point.remove_trace_point()
             trace_point_config = TracePointConfig(trace_point_id, trace_point.config.file, trace_point.config.file_ref, trace_point.config.line,
                                                   client, condition, expire_duration, expire_count,
@@ -138,8 +138,13 @@ class TracePointManager(object):
     def _delete_trace_point_tags(self, trace_point_id):
         try:
             trace_point_tags = self._trace_points[trace_point_id].config.tags
+            deleted_tags = set()
             for trace_point_tag in trace_point_tags:
                 self._tagged_trace_points[trace_point_tag].discard(trace_point_id)
+                if not self._tagged_trace_points[trace_point_tag]:
+                    deleted_tags.add(trace_point_tag)
+            for deleted_tag in deleted_tags:
+                del self._tagged_trace_points[deleted_tag]
         except Exception as e:
             logger.error("Error while cleaning tracepoints tags %s " % e)
 

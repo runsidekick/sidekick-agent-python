@@ -140,8 +140,8 @@ class TracePoint(object):
                     logger.warning(e)
                     # TODO: report error to broker here
                     pass
-            self.hit_count += 1
             if self.config.expire_hit_count != -1 and self.hit_count >= self.config.expire_hit_count:
+                self.hit_count += 1
                 self.trace_point_manager.expire_trace_point(self)
 
             rate_limit_result = self.rate_limiter.check_rate_limit(time.time())

@@ -39,8 +39,8 @@ class LogPointManager(object):
         with self._lock:
             if log_point_id not in self._log_points:
                 raise CodedException(errors.NO_LOGPOINT_EXIST_WITH_ID, (log_point_id, client))
-            log_point = self._log_points.pop(log_point_id)
             self._delete_log_point_tags(log_point_id)
+            log_point = self._log_points.pop(log_point_id)
             log_point.remove_log_point()
             log_point_config = LogPointConfig(log_point_id, log_point.config.file, log_point.config.file_ref, log_point.config.line,
                                                   client, log_expression, condition, expire_duration, expire_count, disabled=disabled,
@@ -128,9 +128,14 @@ class LogPointManager(object):
 
     def _delete_log_point_tags(self, log_point_id):
         try:
-            trace_point_tags = self._log_points[log_point_id].config.tags
+            trace_point_tags = self._trace_points[trace_point_id].config.tags
+            deleted_tags = set()
             for trace_point_tag in trace_point_tags:
-                self._tagged_trace_points[trace_point_tag].discard(log_point_id)
+                self._tagged_trace_points[trace_point_tag].discard(trace_point_id)
+                if not self._tagged_trace_points[trace_point_tag]:
+                    deleted_tags.add(trace_point_tag)
+            for deleted_tag in deleted_tags:
+                del self._tagged_trace_points[deleted_tag]
         except Exception as e:
             logger.error("Error while cleaning tracepoints tags %s " % e)
 
