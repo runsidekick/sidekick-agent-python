@@ -29,5 +29,5 @@ class TracePointConfig(object):
             "disabled": self.disabled,
             "tracingEnabled": self.tracing_enabled,
             "conditionExpression": self.cond,
-            "tags": self.tags
+            "tags": list(self.tags)
         }

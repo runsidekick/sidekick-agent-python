@@ -33,5 +33,5 @@ class LogPointConfig(object):
             "logLevel": self.log_level,
             "stdoutEnabled": self.stdout_enabled,
             "conditionExpression": self.cond,
-            "tags": self.tags
+            "tags": list(self.tags)
         }
