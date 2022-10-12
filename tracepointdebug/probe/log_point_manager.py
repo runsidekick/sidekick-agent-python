@@ -128,20 +128,20 @@ class LogPointManager(object):
 
     def _delete_log_point_tags(self, log_point_id):
         try:
-            trace_point_tags = self._trace_points[trace_point_id].config.tags
+            log_point_tags = self._log_points[log_point_id].config.tags
             deleted_tags = set()
-            for trace_point_tag in trace_point_tags:
-                self._tagged_trace_points[trace_point_tag].discard(trace_point_id)
-                if not self._tagged_trace_points[trace_point_tag]:
-                    deleted_tags.add(trace_point_tag)
+            for log_point_tag in log_point_tags:
+                self._tagged_log_points[log_point_tag].discard(log_point_id)
+                if not self._tagged_log_points[log_point_tag]:
+                    deleted_tags.add(log_point_tag)
             for deleted_tag in deleted_tags:
-                del self._tagged_trace_points[deleted_tag]
+                del self._tagged_log_points[deleted_tag]
         except Exception as e:
-            logger.error("Error while cleaning tracepoints tags %s " % e)
+            logger.error("Error while cleaning logpoints tags %s " % e)
 
     def _add_log_point_tags(self, log_point_id, tags=set()):
         try:
             for tag in tags:
                 self._tagged_log_points[tag].add(log_point_id)
         except Exception as e:
-            logger.error("Error while putting tracepoints tags %s " % e)
+            logger.error("Error while putting logpoints tags %s " % e)
