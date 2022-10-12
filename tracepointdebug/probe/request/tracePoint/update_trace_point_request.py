@@ -10,7 +10,7 @@ class UpdateTracePointRequest(BaseRequest):
         self.enable_tracing = request.get("enableTracing")
         self.condition = request.get("conditionExpression")
         self.disable = request.get("disable")
-        self.tags = request.get("tags")
+        self.tags = request.get("tags", set())
         self.expire_secs = min(int(request.get("expireSecs", constants.TRACEPOINT_DEFAULT_EXPIRY_SECS)),
                                constants.TRACEPOINT_MAX_EXPIRY_SECS)
         self.expire_count = min(int(request.get("expireCount", constants.TRACEPOINT_DEFAULT_EXPIRY_COUNT)),

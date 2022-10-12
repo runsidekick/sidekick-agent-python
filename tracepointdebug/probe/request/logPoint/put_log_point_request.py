@@ -12,7 +12,7 @@ class PutLogPointRequest(BaseRequest):
         self.line_no = request.get("lineNo", -1)
         self.condition = request.get("conditionExpression")
         self.log_expression = request.get("logExpression")
-        self.tags = request.get("tags")
+        self.tags = request.get("tags", set())
         self.expire_secs = min(int(request.get("expireSecs", constants.LOGPOINT_DEFAULT_EXPIRY_SECS)),
                                constants.LOGPOINT_MAX_EXPIRY_SECS)
         self.expire_count = min(int(request.get("expireCount", constants.LOGPOINT_DEFAULT_EXPIRY_COUNT)),
