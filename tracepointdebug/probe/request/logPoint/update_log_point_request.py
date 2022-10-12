@@ -10,16 +10,11 @@ class UpdateLogPointRequest(BaseRequest):
         self.log_expression = request.get("logExpression")
         self.condition = request.get("conditionExpression")
         self.disable = request.get("disable")
+        self.tags = request.get("tags")
         self.expire_secs = min(int(request.get("expireSecs", constants.LOGPOINT_DEFAULT_EXPIRY_SECS)),
                                constants.LOGPOINT_MAX_EXPIRY_SECS)
         self.expire_count = min(int(request.get("expireCount", constants.LOGPOINT_DEFAULT_EXPIRY_COUNT)),
                                 constants.LOGPOINT_MAX_EXPIRY_COUNT)
-
-        if self.expire_secs == -1:
-            self.expire_secs = constants.LOGPOINT_DEFAULT_EXPIRY_SECS
-        if self.expire_count == -1:
-            self.expire_count = constants.LOGPOINT_DEFAULT_EXPIRY_COUNT
-        
 
         self.log_level = request.get("logLevel", "INFO")
         self.stdout_enabled = request.get("stdoutEnabled", False)

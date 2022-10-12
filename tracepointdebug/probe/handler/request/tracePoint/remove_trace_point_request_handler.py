@@ -1,39 +1,36 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.request.update_trace_point_request import UpdateTracePointRequest
-from tracepointdebug.probe.response.update_trace_point_response import UpdateTracePointResponse
+from tracepointdebug.probe.request.tracePoint.remove_trace_point_request import RemoveTracePointRequest
+from tracepointdebug.probe.response.tracePoint.remove_trace_point_response import RemoveTracePointResponse
 from tracepointdebug.probe.trace_point_manager import TracePointManager
 
 
-class UpdateTracePointRequestHandler(RequestHandler):
-    REQUEST_NAME = "UpdateTracePointRequest"
+class RemoveTracePointRequestHandler(RequestHandler):
+    REQUEST_NAME = "RemoveTracePointRequest"
 
     @staticmethod
     def get_request_name():
-        return UpdateTracePointRequestHandler.REQUEST_NAME
+        return RemoveTracePointRequestHandler.REQUEST_NAME
 
     @staticmethod
     def get_request_cls():
-        return UpdateTracePointRequest
+        return RemoveTracePointRequest
 
     @staticmethod
     def handle_request(request):
         application_info = Application.get_application_info()
         try:
             trace_point_manager = TracePointManager.instance()
-            trace_point_manager.update_trace_point(request.trace_point_id,
-                                                   request.get_client(), request.expire_secs,
-                                                   request.expire_count, request.enable_tracing, request.condition,
-                                                   disable=request.disable)
+            trace_point_manager.remove_trace_point(request.trace_point_id, request.get_client())
 
             trace_point_manager.publish_application_status()
             if request.get_client() is not None:
                 trace_point_manager.publish_application_status(request.get_client())
 
-            return UpdateTracePointResponse(request_id=request.get_id(), client=request.get_client(),
+            return RemoveTracePointResponse(request_id=request.get_id(), client=request.get_client(),
                                             application_instance_id=application_info.get('applicationInstanceId'))
         except Exception as e:
-            tp = UpdateTracePointResponse(request_id=request.get_id(), client=request.get_client(),
+            tp = RemoveTracePointResponse(request_id=request.get_id(), client=request.get_client(),
                                           application_instance_id=application_info.get('applicationInstanceId'),
                                           erroneous=True)
             tp.set_error(e)

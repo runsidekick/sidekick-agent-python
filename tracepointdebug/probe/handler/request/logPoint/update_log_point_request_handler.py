@@ -25,7 +25,7 @@ class UpdateLogPointRequestHandler(RequestHandler):
                                                    request.get_client(), request.expire_secs,
                                                    request.expire_count, request.log_expression, request.condition,
                                                    disabled=request.disable, log_level=request.log_level, 
-                                                   stdout_enabled=request.stdout_enabled)
+                                                   stdout_enabled=request.stdout_enabled, tags=request.tags)
 
             log_point_manager.publish_application_status()
             if request.get_client() is not None:

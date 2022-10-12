@@ -28,7 +28,7 @@ class PutLogPointRequestHandler(RequestHandler):
                                                 request.get_client(), request.expire_secs,
                                                 request.expire_count, False, 
                                                 request.log_expression, request.condition,
-                                                request.log_level, request.stdout_enabled)
+                                                request.log_level, request.stdout_enabled, request.tags)
 
             log_point_manager.publish_application_status()
             if request.get_client() is not None:

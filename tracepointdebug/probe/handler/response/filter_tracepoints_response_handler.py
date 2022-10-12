@@ -2,7 +2,7 @@ from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.errors import TRACEPOINT_ALREADY_EXIST
 from tracepointdebug.probe.trace_point_manager import TracePointManager
 from tracepointdebug.broker.handler.response.response_handler import ResponseHandler
-from tracepointdebug.probe.response import FilterTracePointsResponse
+from tracepointdebug.probe.response.tracePoint.filter_tracepoints_response import FilterTracePointsResponse
 
 from tracepointdebug.application.application import Application
 from tracepointdebug.utils.validation import validate_file_name_and_line_no
@@ -20,7 +20,8 @@ def _applyTracePoint(trace_point):
         trace_point_manager.put_trace_point(trace_point.get("id", None), file_name, 
                                             trace_point.get("fileHash", None), trace_point.get("lineNo",None),
                                             client, trace_point.get("expireDuration", None), trace_point.get("expireCount", None),
-                                            trace_point.get("disabled", None), condition = condition)
+                                            trace_point.get("disabled", None), condition = condition,
+                                            tags=trace_point.get("tags", set()))
         
         trace_point_manager.publish_application_status()
         if client is not None:

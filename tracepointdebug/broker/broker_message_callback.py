@@ -3,13 +3,9 @@ import json
 from tracepointdebug.probe.encoder import to_json
 from tracepointdebug.probe.handler import ( DisableTracePointRequestHandler, 
     EnableTracePointRequestHandler, PutTracePointRequestHandler, RemoveTracePointRequestHandler, 
-    UpdateTracePointRequestHandler, FilterTracePointsResponseHandler )
-from tracepointdebug.probe.handler.request.logPoint.disable_log_point_request_handler import DisableLogPointRequestHandler
-from tracepointdebug.probe.handler.request.logPoint.enable_log_point_request_handler import EnableLogPointRequestHandler
-from tracepointdebug.probe.handler.request.logPoint.put_log_point_request_handler import PutLogPointRequestHandler
-from tracepointdebug.probe.handler.request.logPoint.remove_log_point_request_handler import RemoveLogPointRequestHandler
-from tracepointdebug.probe.handler.request.logPoint.update_log_point_request_handler import UpdateLogPointRequestHandler
-from tracepointdebug.probe.handler.response.filter_logpoints_response_handler import FilterLogPointsResponseHandler
+    UpdateTracePointRequestHandler, FilterTracePointsResponseHandler, DisableLogPointRequestHandler, 
+    EnableLogPointRequestHandler, PutLogPointRequestHandler, RemoveLogPointRequestHandler, UpdateLogPointRequestHandler,
+    FilterLogPointsResponseHandler, EnableProbeTagRequestHandler, DisableProbeTagRequestHandler)
 from tracepointdebug.utils import debug_logger
 
 MESSAGE_REQUEST_TYPE = "Request"
@@ -26,7 +22,10 @@ REQUEST_HANDLER_MAP = {
     "EnableLogPointRequest": EnableLogPointRequestHandler,
     "PutLogPointRequest": PutLogPointRequestHandler,
     "RemoveLogPointRequest": RemoveLogPointRequestHandler,
-    "UpdateLogPointRequest": UpdateLogPointRequestHandler
+    "UpdateLogPointRequest": UpdateLogPointRequestHandler,
+
+    "EnableProbeTagRequest": EnableProbeTagRequestHandler,
+    "DisableProbeTagRequest": DisableProbeTagRequestHandler
 }
 
 RESPONSE_HANDLER_MAP = {
