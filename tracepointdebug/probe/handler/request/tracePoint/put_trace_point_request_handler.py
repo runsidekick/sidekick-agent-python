@@ -2,7 +2,7 @@ from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
 from tracepointdebug.probe.request.tracePoint.put_trace_point_request import PutTracePointRequest
 from tracepointdebug.probe.response.tracePoint.put_trace_point_response import PutTracePointResponse
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 from tracepointdebug.utils.validation import validate_file_name_and_line_no
 
 

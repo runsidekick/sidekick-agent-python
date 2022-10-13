@@ -2,9 +2,8 @@ from threading import RLock
 
 from tracepointdebug.probe import errors
 from tracepointdebug.probe.coded_exception import CodedException
-from tracepointdebug.probe.log_point import LogPoint
-from tracepointdebug.probe.log_point_config import LogPointConfig
-from tracepointdebug.probe.event.logpoint.log_point_event import LogPointEvent
+from .log_point import LogPoint
+from .log_point_config import LogPointConfig
 from collections import defaultdict
 import logging
 

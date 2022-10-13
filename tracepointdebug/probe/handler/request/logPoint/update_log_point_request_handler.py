@@ -2,7 +2,7 @@ from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
 from tracepointdebug.probe.request.logPoint.update_log_point_request import UpdateLogPointRequest
 from tracepointdebug.probe.response.logPoint.update_log_point_response import UpdateLogPointResponse
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 
 
 class UpdateLogPointRequestHandler(RequestHandler):

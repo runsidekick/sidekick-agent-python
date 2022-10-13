@@ -1,10 +1,9 @@
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.errors import TRACEPOINT_ALREADY_EXIST
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 from tracepointdebug.broker.handler.response.response_handler import ResponseHandler
 from tracepointdebug.probe.response.tracePoint.filter_tracepoints_response import FilterTracePointsResponse
 
-from tracepointdebug.application.application import Application
 from tracepointdebug.utils.validation import validate_file_name_and_line_no
 
 import logging

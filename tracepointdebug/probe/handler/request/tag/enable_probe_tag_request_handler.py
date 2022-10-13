@@ -1,7 +1,7 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.log_point_manager import LogPointManager
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 from tracepointdebug.probe.request.tag.enable_probe_tag_requests import EnableProbeTagRequest
 from tracepointdebug.probe.response.tag.enable_tag_response import EnableTagResponse
 

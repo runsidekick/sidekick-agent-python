@@ -2,8 +2,8 @@ import atexit
 
 from . import cdbg_native
 from .broker.broker_manager import BrokerManager
-from .probe.trace_point_manager import TracePointManager
-from .probe.log_point_manager import LogPointManager
+from .probe.breakpoints.tracepoint import TracePointManager
+from .probe.breakpoints.logpoint import LogPointManager
 from .probe.error_stack_manager import ErrorStackManager
 
 '''

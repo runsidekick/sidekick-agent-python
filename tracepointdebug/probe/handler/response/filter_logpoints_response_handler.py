@@ -1,6 +1,6 @@
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.errors import LOGPOINT_ALREADY_EXIST
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 from tracepointdebug.broker.handler.response.response_handler import ResponseHandler
 from tracepointdebug.application.application import Application
 from tracepointdebug.probe.response.logPoint.filter_logpoints_response import FilterLogPointsResponse

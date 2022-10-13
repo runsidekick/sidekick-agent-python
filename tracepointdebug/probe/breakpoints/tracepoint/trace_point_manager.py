@@ -3,8 +3,8 @@ from threading import RLock
 
 from tracepointdebug.probe import errors
 from tracepointdebug.probe.coded_exception import CodedException
-from tracepointdebug.probe.trace_point import TracePoint
-from tracepointdebug.probe.trace_point_config import TracePointConfig
+from .trace_point import TracePoint
+from .trace_point_config import TracePointConfig
 from tracepointdebug.probe.event.tracepoint.trace_point_snapshot_event import TracePointSnapshotEvent
 from collections import defaultdict
 
