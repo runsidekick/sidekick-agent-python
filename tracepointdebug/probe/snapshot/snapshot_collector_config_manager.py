@@ -1,6 +1,3 @@
-from turtle import update
-
-
 class DEFAULT_SNAPSHOT_CONFIGS:
     MAX_FRAMES = 10
     MAX_EXPAND_FRAMES = 1

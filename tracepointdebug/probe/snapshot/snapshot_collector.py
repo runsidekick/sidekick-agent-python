@@ -58,7 +58,7 @@ class SnapshotCollector(object):
         if depth >= max_depth:
             return None
 
-        if self.cur_size >= self.snapshot_config_manager:
+        if self.cur_size >= SnapshotCollectorConfigManager.get_max_size():
             return None
 
         if variable is None:
