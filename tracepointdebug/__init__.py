@@ -1,5 +1,7 @@
 import atexit
 
+from tracepointdebug.probe.dynamicConfig.dynamic_config_manager import DynamicConfigManager
+
 from . import cdbg_native
 from .broker.broker_manager import BrokerManager
 from .probe.breakpoints.tracepoint import TracePointManager
@@ -21,11 +23,10 @@ logger = logging.getLogger(__name__)
 def start(tracepoint_data_redaction_callback=None, log_data_redaction_callback=None):
     cdbg_native.InitializeModule(None)
     _broker_manager = BrokerManager().instance()
-    _broker_manager.initialize(tracepoint_data_redaction_callback, log_data_redaction_callback)
-    tpm = TracePointManager(broker_manager=_broker_manager)
-    lpm = LogPointManager(broker_manager=_broker_manager)
+    TracePointManager(broker_manager=_broker_manager)
+    LogPointManager(broker_manager=_broker_manager)
     esm = ErrorStackManager(broker_manager=_broker_manager)
+    dcm = DynamicConfigManager(broker_manager=_broker_manager)
+    _broker_manager.initialize(tracepoint_data_redaction_callback, log_data_redaction_callback)
     esm.start()
-    atexit.register(tpm.remove_all_trace_points)
-    atexit.register(lpm.remove_all_log_points)
-    atexit.register(esm.shutdown)
+    atexit.register(dcm.handle_detach)

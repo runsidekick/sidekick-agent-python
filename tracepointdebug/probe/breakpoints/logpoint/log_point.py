@@ -16,17 +16,13 @@ from tracepointdebug.probe.event.logpoint.log_point_failed_event import LogPoint
 from tracepointdebug.probe.event.logpoint.put_logpoint_failed_event import PutLogPointFailedEvent
 from tracepointdebug.probe.ratelimit.rate_limit_result import RateLimitResult
 from tracepointdebug.probe.ratelimit.rate_limiter import RateLimiter
-from tracepointdebug.probe.snapshot_collector import SnapshotCollector
+from tracepointdebug.probe.snapshot import SnapshotCollector
 from tracepointdebug.probe.source_code_helper import get_source_code_hash
 import pystache
 from datetime import datetime
 from tracepointdebug.utils.log.logger import print_log_event_message
 
 logger = logging.getLogger(__name__)
-
-_MAX_SNAPSHOT_SIZE = 32768
-_MAX_FRAMES = 10
-_MAX_EXPAND_FRAMES = 2
 
 class LogPoint(object):
 
@@ -152,7 +148,7 @@ class LogPoint(object):
 
             if rate_limit_result == RateLimitResult.EXCEEDED:
                 return
-            snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
+            snapshot_collector = SnapshotCollector()
             snapshot = snapshot_collector.collect(frame)
             if self.log_point_manager.broker_manager._log_data_redaction_callback:
                 log_redaction = {

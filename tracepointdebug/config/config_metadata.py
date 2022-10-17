@@ -12,7 +12,7 @@ CONFIG_METADATA = {
         'type': 'boolean',
         'defaultValue': False,
     },
-    config_names.SIDEKICK_ERROR_FRAME_COLLECTION_ENABLE: {
+    config_names.SIDEKICK_ERROR_COLLECTION_ENABLE_CAPTURE_FRAME: {
         'type': 'boolean',
         'defaultValue': False,
     },

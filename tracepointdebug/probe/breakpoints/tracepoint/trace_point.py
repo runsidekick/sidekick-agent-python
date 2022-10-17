@@ -18,16 +18,11 @@ from tracepointdebug.probe.event.tracepoint.trace_point_snapshot_event import Tr
 from tracepointdebug.probe.event.tracepoint.tracepoint_snapshot_failed_event import TracePointSnapshotFailedEvent
 from tracepointdebug.probe.ratelimit.rate_limit_result import RateLimitResult
 from tracepointdebug.probe.ratelimit.rate_limiter import RateLimiter
-from tracepointdebug.probe.snapshot_collector import SnapshotCollector
+from tracepointdebug.probe.snapshot import SnapshotCollector
 from tracepointdebug.probe.source_code_helper import get_source_code_hash
 from tracepointdebug.trace import TraceSupport
 
 logger = logging.getLogger(__name__)
-
-_MAX_SNAPSHOT_SIZE = 32768
-_MAX_FRAMES = 10
-_MAX_EXPAND_FRAMES = 2
-
 
 class TracePoint(object):
 
@@ -153,7 +148,7 @@ class TracePoint(object):
 
             if rate_limit_result == RateLimitResult.EXCEEDED:
                 return
-            snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
+            snapshot_collector = SnapshotCollector()
             snapshot = snapshot_collector.collect(frame)
 
             trace_context = TraceSupport.get_trace_context()

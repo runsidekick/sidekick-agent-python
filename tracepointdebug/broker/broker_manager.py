@@ -21,12 +21,14 @@ from tracepointdebug.probe.encoder import to_json
 
 from tracepointdebug.broker.request.filter_tracepoints_request import FilterTracePointsRequest
 from tracepointdebug.broker.request.filter_logpoints_request import FilterLogPointsRequest
+from tracepointdebug.broker.request.get_config_request import GetConfigRequest
 
 API_KEY = ConfigProvider.get(config_names.SIDEKICK_APIKEY)
 BROKER_HOST = utils.get_from_environment_variables("SIDEKICK_BROKER_HOST", "wss://broker.service.runsidekick.com", str)
 BROKER_PORT = utils.get_from_environment_variables("SIDEKICK_BROKER_PORT", 443, int)
 
 APPLICATION_STATUS_PUBLISH_PERIOD_IN_SECS = 60
+GET_CONFIG_PERIOD_IN_SECS = 5 * 60
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +50,12 @@ class BrokerManager(object):
         import sys
         if sys.version_info[0] >= 3:
             self.application_status_thread = Thread(target=self.application_status_sender, daemon=True)
+            self.get_config_thread = Thread(target=self.get_config_sender, kwargs={"wait_after": True}, daemon=True)
         else:
             self.application_status_thread = Thread(target=self.application_status_sender)
+            self.get_config_thread = Thread(target=self.get_config_sender, kwargs={"wait_after": True})
             self.application_status_thread.daemon = True
+            self.get_config_thread.daemon = True
         self.application_status_providers = [ApplicationStatusTracePointProvider()]
 
 
@@ -88,6 +93,7 @@ class BrokerManager(object):
 
             self.broker_connection.connect()
             self.application_status_thread.start()
+            self.get_config_thread.start()
         except Exception as e:
             logger.error("Error connecting to broker %s" % e)
 
@@ -153,6 +159,20 @@ class BrokerManager(object):
             self.broker_connection.connected.wait()
             self.publish_application_status()
             time.sleep(APPLICATION_STATUS_PUBLISH_PERIOD_IN_SECS)
+
+
+    def get_config_sender(self, wait_after=True):
+        while self.broker_connection is not None and self.broker_connection.is_running():
+            self.broker_connection.connected.wait()
+            application_info = Application.get_application_info()
+            get_config_request = GetConfigRequest(application_info.get("applicationName", ""), 
+                                                    application_info.get("applicationVersion", ""),
+                                                    application_info.get("applicationStage", ""),
+                                                    application_info.get("applicationTags", {}))
+            serialized_get_config_request = to_json(get_config_request)
+            self.broker_connection.send(serialized_get_config_request)
+            if wait_after:
+                time.sleep(GET_CONFIG_PERIOD_IN_SECS)
 
 
     def publish_application_status(self, client=None):
