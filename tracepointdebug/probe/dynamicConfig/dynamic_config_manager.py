@@ -4,7 +4,6 @@ from tracepointdebug.probe.error_stack_manager import ErrorStackManager
 from tracepointdebug.probe.snapshot import SnapshotCollectorConfigManager
 from tracepointdebug.config import config_names
 from tracepointdebug.config.config_provider import ConfigProvider
-from threading import Lock
 
 _ERROR_COLLECTION_ENABLE_KEY = "errorCollectionEnable"
 _ERROR_COLLECTION_ENABLE_CAPTURE_FRAME = "errorCollectionEnableCaptureFrame"
@@ -13,7 +12,6 @@ class DynamicConfigManager():
     __instance = None
 
     def __init__(self, broker_manager):
-        self._lock = Lock()
         self.attached = True
         self.trace_point_manager = TracePointManager.instance()
         self.log_point_manager = LogPointManager.instance()
@@ -26,19 +24,17 @@ class DynamicConfigManager():
         return DynamicConfigManager(*args,
                                  **kwargs) if DynamicConfigManager.__instance is None else DynamicConfigManager.__instance
 
-    def handle_attach(self, attached_config):
-        with self._lock:
-            self.attached = True
-            self.broker_manager.publish_request()
-            self.broker_manager.get_config_sender(wait_after=False)
+    def handle_attach(self):
+        self.attached = True
+        self.broker_manager.publish_request()
+        self.broker_manager.send_get_config()
 
     
     def handle_detach(self):
-        with self._lock:
-            self.attached = False
-            self.trace_point_manager.remove_all_trace_points()
-            self.log_point_manager.remove_all_log_points()
-            self.error_stack_manager.shutdown()
+        self.attached = False
+        self.trace_point_manager.remove_all_trace_points()
+        self.log_point_manager.remove_all_log_points()
+        self.error_stack_manager.shutdown()
 
     def update_config(self, config):
         SnapshotCollectorConfigManager.update_snapshot_config(config)

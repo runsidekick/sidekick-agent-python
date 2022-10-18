@@ -50,10 +50,10 @@ class BrokerManager(object):
         import sys
         if sys.version_info[0] >= 3:
             self.application_status_thread = Thread(target=self.application_status_sender, daemon=True)
-            self.get_config_thread = Thread(target=self.get_config_sender, kwargs={"wait_after": True}, daemon=True)
+            self.get_config_thread = Thread(target=self.get_config_sender, daemon=True)
         else:
             self.application_status_thread = Thread(target=self.application_status_sender)
-            self.get_config_thread = Thread(target=self.get_config_sender, kwargs={"wait_after": True})
+            self.get_config_thread = Thread(target=self.get_config_sender)
             self.application_status_thread.daemon = True
             self.get_config_thread.daemon = True
         self.application_status_providers = [ApplicationStatusTracePointProvider()]
@@ -161,19 +161,23 @@ class BrokerManager(object):
             time.sleep(APPLICATION_STATUS_PUBLISH_PERIOD_IN_SECS)
 
 
-    def get_config_sender(self, wait_after=True):
+    def get_config_sender(self):
         while self.broker_connection is not None and self.broker_connection.is_running():
             self.broker_connection.connected.wait()
+            self.send_get_config()
+            time.sleep(GET_CONFIG_PERIOD_IN_SECS)
+
+    def send_get_config(self):
+        try:
             application_info = Application.get_application_info()
             get_config_request = GetConfigRequest(application_info.get("applicationName", ""), 
                                                     application_info.get("applicationVersion", ""),
                                                     application_info.get("applicationStage", ""),
                                                     application_info.get("applicationTags", {}))
             serialized_get_config_request = to_json(get_config_request)
-            self.broker_connection.send(serialized_get_config_request)
-            if wait_after:
-                time.sleep(GET_CONFIG_PERIOD_IN_SECS)
-
+            self.broker_connection.send(serialized_get_config_request)       
+        except Exception as e:
+            pass
 
     def publish_application_status(self, client=None):
         application_info = Application.get_application_info()

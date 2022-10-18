@@ -96,19 +96,21 @@ class LogPointManager(object):
             else:
                 raise CodedException(errors.NO_LOGPOINT_EXIST_WITH_ID, (log_point_id, client))
 
-    def enable_tag(self, tag, client):
+    def enable_tag(self, tags, client):
         with self._lock:
-            if tag in self._tagged_log_points:
-                log_point_ids = self._tagged_log_points.get(tag, set())
-                for log_point_id in log_point_ids:
-                    self.enable_log_point(log_point_id, client)
+            for tag in tags:
+                if tag in self._tagged_log_points:
+                    log_point_ids = self._tagged_log_points.get(tag, set())
+                    for log_point_id in log_point_ids:
+                        self.enable_log_point(log_point_id, client)
 
-    def disable_tag(self, tag, client):
+    def disable_tag(self, tags, client):
         with self._lock:
-            if tag in self._tagged_log_points:
-                log_point_ids = self._tagged_log_points.get(tag, set())
-                for log_point_id in log_point_ids:
-                    self.disable_log_point(log_point_id, client)
+            for tag in tags:
+                if tag in self._tagged_log_points:
+                    log_point_ids = self._tagged_log_points.get(tag, set())
+                    for log_point_id in log_point_ids:
+                        self.disable_log_point(log_point_id, client)
 
     def expire_log_point(self, log_point):
         with self._lock:

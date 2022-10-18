@@ -95,19 +95,21 @@ class TracePointManager(object):
             else:
                 raise CodedException(errors.NO_TRACEPOINT_EXIST_WITH_ID, (trace_point_id, client))
 
-    def enable_tag(self, tag, client):
+    def enable_tag(self, tags, client):
         with self._lock:
-            if tag in self._tagged_trace_points:
-                trace_point_ids = self._tagged_trace_points.get(tag, set())
-                for trace_point_id in trace_point_ids:
-                    self.enable_trace_point(trace_point_id, client)
+            for tag in tags:
+                if tag in self._tagged_trace_points:
+                    trace_point_ids = self._tagged_trace_points.get(tag, set())
+                    for trace_point_id in trace_point_ids:
+                        self.enable_trace_point(trace_point_id, client)
 
-    def disable_tag(self, tag, client):
+    def disable_tag(self, tags, client):
         with self._lock:
-            if tag in self._tagged_trace_points:
-                trace_point_ids = self._tagged_trace_points.get(tag, set())
-                for trace_point_id in trace_point_ids:
-                    self.disable_trace_point(trace_point_id, client)
+            for tag in tags:
+                if tag in self._tagged_trace_points:
+                    trace_point_ids = self._tagged_trace_points.get(tag, set())
+                    for trace_point_id in trace_point_ids:
+                        self.disable_trace_point(trace_point_id, client)
 
     def expire_trace_point(self, trace_point):
         with self._lock:

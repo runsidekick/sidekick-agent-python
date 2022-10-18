@@ -51,7 +51,7 @@ class BrokerMessageCallback(object):
 
             message_type = message.get("type", None)
             if attached:
-                if message_type == MESSAGE_REQUEST_TYPE:
+                if message_type == MESSAGE_REQUEST_TYPE and message.get("name") != "AttachRequest":
                     self._handle_requests(message, broker_client)
                 elif message_type == MESSAGE_RESPONSE_TYPE:
                     self._handle_responses(message)
@@ -68,6 +68,7 @@ class BrokerMessageCallback(object):
         if handler is not None:
             request = handler.get_request_cls()(message)
             response = handler.handle_request(request)
+            print(f'request response {response}') # TODO delete
             serialized = to_json(response)
             broker_client.send(serialized)
         else:
@@ -78,6 +79,7 @@ class BrokerMessageCallback(object):
         handler = RESPONSE_HANDLER_MAP.get(message.get("name"))
         if handler is not None:
             response = handler.get_response_cls()(**message)
+            print(f'response response {response}') # TODO delete
             handler.handle_response(response)
         else:
             debug_logger("No response handler could be found for message with name {}: {}".format(message.get("name"),
