@@ -45,7 +45,7 @@ class SnapshotCollectorConfigManager():
     
     @staticmethod
     def get_max_properties():
-        return snapshot_configs.get("maxVarLen")
+        return snapshot_configs.get("maxProperties")
 
     @staticmethod
     def update_snapshot_config(update_configs): 
