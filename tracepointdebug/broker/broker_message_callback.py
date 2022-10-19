@@ -68,7 +68,6 @@ class BrokerMessageCallback(object):
         if handler is not None:
             request = handler.get_request_cls()(message)
             response = handler.handle_request(request)
-            print(f'request response {response}') # TODO delete
             serialized = to_json(response)
             broker_client.send(serialized)
         else:
@@ -79,7 +78,6 @@ class BrokerMessageCallback(object):
         handler = RESPONSE_HANDLER_MAP.get(message.get("name"))
         if handler is not None:
             response = handler.get_response_cls()(**message)
-            print(f'response response {response}') # TODO delete
             handler.handle_response(response)
         else:
             debug_logger("No response handler could be found for message with name {}: {}".format(message.get("name"),
