@@ -27,6 +27,7 @@ class ErrorStackManager(object):
         self.old_threading = threading._trace_hook
         self.condition = None
         self.timer = None
+        self._started = False
         self.sidekick_exception = "sidekickException"
         self.rate_limiter = RateLimiter()
         self.ttl_cache = TTLCache(maxsize=2048, ttl=datetime.timedelta(minutes=_MAX_TIME_TO_ALIVE_MIN), timer=datetime.datetime.now)
@@ -109,13 +110,16 @@ class ErrorStackManager(object):
             self._publish_event(event)
 
     def start(self):
-        if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
+        if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE) and not self._started:
+            self._started = True
             sys.settrace(self.trace_hook)
             threading.settrace(self.trace_hook)
 
     def shutdown(self):
-        sys.settrace(self.old_settrace)
-        threading.settrace(self.old_threading)
+        if self._started:
+            self._started = False
+            sys.settrace(self.old_settrace)
+            threading.settrace(self.old_threading)
 
     def _publish_event(self, event):
         self.broker_manager.publish_event(event)
