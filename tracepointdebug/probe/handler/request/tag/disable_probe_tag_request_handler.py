@@ -1,7 +1,7 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
 from tracepointdebug.probe.request.tag.disable_probe_tag_requests import DisableProbeTagRequest
-from tracepointdebug.probe.response.tag.disable_tag_response import DisableTagResponse
+from tracepointdebug.probe.response.tag.disable_probe_tag_response import DisableProbeTagResponse
 from tracepointdebug.probe.tag_manager import TagManager
 
 
@@ -24,10 +24,10 @@ class DisableProbeTagRequestHandler(RequestHandler):
             client = request.get_client()
             tag_manager = TagManager().instance()
             tag_manager.disable_tag(tag, client)
-            return DisableTagResponse(request_id=request.get_id(), client=request.get_client(),
+            return DisableProbeTagResponse(request_id=request.get_id(), client=request.get_client(),
                                              application_instance_id=application_info.get('applicationInstanceId'))
         except Exception as e:
-            tp = DisableTagResponse(request_id=request.get_id(), client=request.get_client(),
+            tp = DisableProbeTagResponse(request_id=request.get_id(), client=request.get_client(),
                                            application_instance_id=application_info.get('applicationInstanceId'),
                                            erroneous=True)
             tp.set_error(e)
