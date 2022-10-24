@@ -1,9 +1,8 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
-from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 from tracepointdebug.probe.request.tag.disable_probe_tag_requests import DisableProbeTagRequest
 from tracepointdebug.probe.response.tag.disable_tag_response import DisableTagResponse
+from tracepointdebug.probe.tag_manager import TagManager
 
 
 class DisableProbeTagRequestHandler(RequestHandler):
@@ -21,16 +20,10 @@ class DisableProbeTagRequestHandler(RequestHandler):
     def handle_request(request):
         application_info = Application.get_application_info()
         try:
-            trace_point_manager = TracePointManager.instance()
-            log_point_manager = LogPointManager.instance()
-            trace_point_manager.disable_tag(request.get_tag(), request.get_client())
-            log_point_manager.disable_tag(request.get_tag(), request.get_client())
-            log_point_manager.publish_application_status()
-            trace_point_manager.publish_application_status()
-            if request.get_client() is not None:
-                log_point_manager.publish_application_status(request.get_client())
-                trace_point_manager.publish_application_status(request.get_client())
-
+            tag = request.get_tag()
+            client = request.get_client()
+            tag_manager = TagManager().instance()
+            tag_manager.disable_tag(tag, client)
             return DisableTagResponse(request_id=request.get_id(), client=request.get_client(),
                                              application_instance_id=application_info.get('applicationInstanceId'))
         except Exception as e:
