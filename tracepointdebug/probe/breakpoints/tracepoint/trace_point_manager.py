@@ -13,11 +13,14 @@ logger = logging.getLogger(__name__)
 class TracePointManager(object):
     __instance = None
 
-    def __init__(self, broker_manager):
+    def __init__(self, broker_manager, data_redaction_callback=None):
         self._lock = RLock()
         self._trace_points = {}
         self._tagged_trace_points = defaultdict(set)
         self.broker_manager = broker_manager
+        self._data_redaction_callback = None
+        if callable(data_redaction_callback):
+            self._data_redaction_callback = data_redaction_callback
         TracePointManager.__instance = self
 
     @staticmethod
@@ -120,18 +123,6 @@ class TracePointManager(object):
                 self._trace_points.pop(trace_point_id).remove_trace_point()
 
     def publish_event(self, event):
-        try:
-            if self.broker_manager._tracepoint_data_redaction_callback and isinstance(event, TracePointSnapshotEvent):
-                trace_redaction = {
-                    "file_name": event.file,
-                    "line_no": event.line_no,
-                    "method_name": event.method_name,
-                    "frames": event.frames
-                }
-                self.broker_manager._tracepoint_data_redaction_callback(trace_redaction)
-                event.frames = trace_redaction["frames"]
-        except Exception as e:
-            logger.error("Error for external processing tracepoint with callbacks %s" % e)
         self.broker_manager.publish_event(event)
 
     def publish_application_status(self, client=None):

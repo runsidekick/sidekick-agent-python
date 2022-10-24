@@ -161,6 +161,19 @@ class TracePoint(object):
                                             frames=snapshot.frames, transaction_id=transaction_id, trace_id=trace_id,
                                             span_id=span_id)
 
+            try:
+                if self.trace_point_manager._data_redaction_callback:
+                    trace_redaction = {
+                        "file_name": event.file,
+                        "line_no": event.line_no,
+                        "method_name": event.method_name,
+                        "frames": event.frames
+                    }
+                    self.trace_point_manager._data_redaction_callback(trace_redaction)
+                    event.frames = trace_redaction["frames"]
+            except Exception as e:
+                logger.error("Error for external processing tracepoint with callbacks %s" % e)
+
             event.client = self.config.client
             self.trace_point_manager.publish_event(event)
         except Exception as exc:

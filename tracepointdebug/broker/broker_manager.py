@@ -64,15 +64,10 @@ class BrokerManager(object):
         return BrokerManager() if BrokerManager.__instance is None else BrokerManager.__instance
 
 
-    def initialize(self, tracepoint_data_redaction_callback=None, log_data_redaction_callback=None):
+    def initialize(self):
         if not self.initialized:
             self.connect_to_broker()
             self.initialized = True
-            if callable(tracepoint_data_redaction_callback):
-                self._tracepoint_data_redaction_callback = tracepoint_data_redaction_callback
-            if callable(log_data_redaction_callback):
-                self._log_data_redaction_callback = log_data_redaction_callback
-
 
     def connect_to_broker(self):
         try:

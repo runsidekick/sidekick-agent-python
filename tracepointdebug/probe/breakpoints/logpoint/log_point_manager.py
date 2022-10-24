@@ -12,11 +12,14 @@ logger = logging.getLogger(__name__)
 class LogPointManager(object):
     __instance = None
 
-    def __init__(self, broker_manager):
+    def __init__(self, broker_manager, data_redaction_callback=None):
         self._lock = RLock()
         self._log_points = {}
         self._tagged_log_points = defaultdict(set)
         self.broker_manager = broker_manager
+        self._data_redaction_callback = None
+        if callable(data_redaction_callback):
+            self._data_redaction_callback = data_redaction_callback
         LogPointManager.__instance = self
 
     @staticmethod
