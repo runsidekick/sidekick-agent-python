@@ -150,7 +150,7 @@ class LogPoint(object):
                 return
             snapshot_collector = SnapshotCollector()
             snapshot = snapshot_collector.collect(frame)
-            if self.log_point_manager._log_data_redaction_callback:
+            if self.log_point_manager._data_redaction_callback:
                 log_redaction = {
                     "file_name": self.config.get_file_name(),
                     "line_no": self.config.line,
@@ -159,7 +159,7 @@ class LogPoint(object):
                     "variables": f_variables
                 }
                 try:
-                    self.log_point_manager._log_data_redaction_callback(log_redaction)
+                    self.log_point_manager._data_redaction_callback(log_redaction)
                     self.config.log_expression = log_redaction.get("log_expression", "")
                     f_variables = log_redaction.get("variables", {})
                 except Exception as e:
