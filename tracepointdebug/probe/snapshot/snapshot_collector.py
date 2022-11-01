@@ -6,11 +6,12 @@ import types
 
 import six
 
+from .snapshot import Snapshot
+from .value import Value
+from .variable import Variable
+from .variables import Variables
+from .snapshot_collector_config_manager import SnapshotCollectorConfigManager
 from tracepointdebug.probe.frame import Frame
-from tracepointdebug.probe.snapshot import Snapshot
-from tracepointdebug.probe.value import Value
-from tracepointdebug.probe.variable import Variable
-from tracepointdebug.probe.variables import Variables
 
 _PRIMITIVE_TYPES = (type(None), float, complex, bool, slice, bytearray,
                     six.text_type,
@@ -21,22 +22,16 @@ _VECTOR_TYPES = (tuple, list, set)
 
 
 class SnapshotCollector(object):
-    def __init__(self, max_size, max_frames, max_expand_frames, max_var_len=256, max_var_depth=4):
-        self.max_size = max_size
-        self.max_frames = max_frames
-        self.max_expand_frames = max_expand_frames
-        self.max_var_len = max_var_len
-        self.max_var_depth = max_var_depth
-
+    def __init__(self):
         self.cur_size = 0
 
     def collect(self, top_frame):
         frame = top_frame
         collected_frames = []
-        while frame and len(collected_frames) < self.max_frames:
+        while frame and len(collected_frames) < SnapshotCollectorConfigManager.get_max_frames():
             code = frame.f_code
             file_path = normalize_path(code.co_filename)
-            if len(collected_frames) < self.max_expand_frames:
+            if len(collected_frames) < SnapshotCollectorConfigManager.get_max_expand_frames():
                 collected_frames.append(
                     Frame(frame.f_lineno, self.collect_frame_locals(frame=frame), file_path, code.co_name))
             else:
@@ -52,16 +47,18 @@ class SnapshotCollector(object):
         frame_locals = frame.f_locals
         variables = []
         for name, value in six.viewitems(frame_locals):
-            val = self.collect_variable_value(value, 0, self.max_var_depth)
+            val = self.collect_variable_value(value, 0, SnapshotCollectorConfigManager.get_parse_depth())
             if val is not None and type(value).__name__.find("byte") == -1:
                 variables.append(Variable(name, type(value).__name__, val))
+            if len(variables) > SnapshotCollectorConfigManager.get_max_properties():
+                break
         return Variables(variables)
 
     def collect_variable_value(self, variable, depth, max_depth):
         if depth >= max_depth:
             return None
 
-        if self.cur_size >= self.max_size:
+        if self.cur_size >= SnapshotCollectorConfigManager.get_max_size():
             return None
 
         if variable is None:
@@ -70,7 +67,7 @@ class SnapshotCollector(object):
 
         if isinstance(variable, _PRIMITIVE_TYPES):
             if isinstance(variable, _TEXT_TYPES):
-                r = _trim_string(variable, self.max_var_len)
+                r = _trim_string(variable, SnapshotCollectorConfigManager.get_max_var_len())
             else:
                 r = variable
             self.cur_size += len(repr(r))
@@ -85,7 +82,7 @@ class SnapshotCollector(object):
             items = [(k, v) for (k, v) in variable.items()]
             r = {}
             for name, value in items:
-                if self.cur_size >= self.max_size:
+                if self.cur_size >= SnapshotCollectorConfigManager.get_max_size():
                     break
                 val = self.collect_variable_value(value, depth + 1, max_depth)
                 if val is not None:
@@ -96,7 +93,7 @@ class SnapshotCollector(object):
         if isinstance(variable, _VECTOR_TYPES):
             r = []
             for item in variable:
-                if self.cur_size >= self.max_size:
+                if self.cur_size >= SnapshotCollectorConfigManager.get_max_size():
                     break
                 val = self.collect_variable_value(item, depth + 1, max_depth)
                 if val is not None:
@@ -114,7 +111,7 @@ class SnapshotCollector(object):
                 items = list(itertools.islice(items, 20 + 1))
             r = {}
             for name, value in items:
-                if self.cur_size >= self.max_size:
+                if self.cur_size >= SnapshotCollectorConfigManager.get_max_size():
                     break
                 val = self.collect_variable_value(value, depth + 1, max_depth)
                 if val is not None:

@@ -1,8 +1,8 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.request.disable_trace_point_request import DisableTracePointRequest
-from tracepointdebug.probe.response.disable_trace_point_response import DisableTracePointResponse
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.request.tracePoint.disable_trace_point_request import DisableTracePointRequest
+from tracepointdebug.probe.response.tracePoint.disable_trace_point_response import DisableTracePointResponse
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 
 
 class DisableTracePointRequestHandler(RequestHandler):

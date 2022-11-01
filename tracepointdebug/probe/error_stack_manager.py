@@ -6,7 +6,7 @@ from tracepointdebug.probe.event.errorstack.error_stack_snapshot_event import Er
 from tracepointdebug.probe.event.errorstack.error_stack_snapshot_failed_event import ErrorStackSnapshotFailedEvent
 from tracepointdebug.probe.ratelimit.rate_limit_result import RateLimitResult
 from tracepointdebug.probe.ratelimit.rate_limiter import RateLimiter
-from tracepointdebug.probe.snapshot_collector import SnapshotCollector
+from tracepointdebug.probe.snapshot import SnapshotCollector
 import logging, sys, threading
 from tracepointdebug.config import config_names
 from tracepointdebug.config.config_provider import ConfigProvider
@@ -16,9 +16,6 @@ import datetime, os
 
 logger = logging.getLogger(__name__)
 
-_MAX_SNAPSHOT_SIZE = 32768
-_MAX_FRAMES = 10
-_MAX_EXPAND_FRAMES = 2
 _MAX_TIME_TO_ALIVE_MIN = 5
 
 class ErrorStackManager(object):
@@ -30,6 +27,7 @@ class ErrorStackManager(object):
         self.old_threading = threading._trace_hook
         self.condition = None
         self.timer = None
+        self._started = False
         self.sidekick_exception = "sidekickException"
         self.rate_limiter = RateLimiter()
         self.ttl_cache = TTLCache(maxsize=2048, ttl=datetime.timedelta(minutes=_MAX_TIME_TO_ALIVE_MIN), timer=datetime.datetime.now)
@@ -64,13 +62,15 @@ class ErrorStackManager(object):
         return True
 
     def trace_hook(self, frame, event, arg):
+        if not ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
+            return
         if not self._white_list_exceptions(frame):
             return
         frame.f_trace = self._frame_hook
 
     def _frame_hook(self, frame, event, arg):
         try:
-            if event != "exception":
+            if event != "exception" or not ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
                 return
             frame_file_name = frame.f_code.co_filename
             frame_line_no = frame.f_lineno
@@ -88,8 +88,8 @@ class ErrorStackManager(object):
                 return
 
             frames = []
-            if ConfigProvider.get(config_names.SIDEKICK_ERROR_FRAME_COLLECTION_ENABLE, False):
-                snapshot_collector = SnapshotCollector(_MAX_SNAPSHOT_SIZE, _MAX_FRAMES, _MAX_EXPAND_FRAMES)
+            if ConfigProvider.get(config_names.SIDEKICK_ERROR_COLLECTION_ENABLE_CAPTURE_FRAME, False):
+                snapshot_collector = SnapshotCollector()
                 snapshot = snapshot_collector.collect(frame)
                 frames = snapshot.frames
             error_stack_id = self.get_id(frame_file_name, frame_line_no)
@@ -110,12 +110,14 @@ class ErrorStackManager(object):
             self._publish_event(event)
 
     def start(self):
-        if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
+        if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE) and not self._started:
+            self._started = True
             sys.settrace(self.trace_hook)
             threading.settrace(self.trace_hook)
 
     def shutdown(self):
-        if ConfigProvider.get(config_names.SIDEKICK_ERROR_STACK_ENABLE):
+        if self._started:
+            self._started = False
             sys.settrace(self.old_settrace)
             threading.settrace(self.old_threading)
 

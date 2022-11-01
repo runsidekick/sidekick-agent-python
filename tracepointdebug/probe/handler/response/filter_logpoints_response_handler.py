@@ -1,6 +1,6 @@
 from tracepointdebug.probe.coded_exception import CodedException
 from tracepointdebug.probe.errors import LOGPOINT_ALREADY_EXIST
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 from tracepointdebug.broker.handler.response.response_handler import ResponseHandler
 from tracepointdebug.application.application import Application
 from tracepointdebug.probe.response.logPoint.filter_logpoints_response import FilterLogPointsResponse
@@ -23,7 +23,7 @@ def _applyLogPoint(log_point):
                                             log_point.get("fileHash", None), log_point.get("lineNo",None),
                                             client, log_point.get("expireDuration", None), log_point.get("expireCount", None),
                                             log_point.get("disabled", False), log_expression=log_expression, condition=condition,
-                                            log_level=log_level, stdout_enabled=stdout_enabled)
+                                            log_level=log_level, stdout_enabled=stdout_enabled, tags=log_point.get("tags", set()))
         
         log_point_manager.publish_application_status()
         if client is not None:

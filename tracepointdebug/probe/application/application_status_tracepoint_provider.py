@@ -1,7 +1,7 @@
 import abc
 
-from tracepointdebug.probe.trace_point_manager import TracePointManager
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 from tracepointdebug.broker.application.application_status_provider import ApplicationStatusProvider
 
 ABC = abc.ABCMeta('ABC', (object,), {})

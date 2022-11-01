@@ -2,7 +2,7 @@ from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
 from tracepointdebug.probe.request.logPoint.put_log_point_request import PutLogPointRequest
 from tracepointdebug.probe.response.logPoint.put_log_point_response import PutLogPointResponse
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 from tracepointdebug.utils.validation import validate_file_name_and_line_no
 
 
@@ -28,7 +28,7 @@ class PutLogPointRequestHandler(RequestHandler):
                                                 request.get_client(), request.expire_secs,
                                                 request.expire_count, False, 
                                                 request.log_expression, request.condition,
-                                                request.log_level, request.stdout_enabled)
+                                                request.log_level, request.stdout_enabled, request.tags)
 
             log_point_manager.publish_application_status()
             if request.get_client() is not None:

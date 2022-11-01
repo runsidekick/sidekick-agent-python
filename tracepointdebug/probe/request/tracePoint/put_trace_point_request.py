@@ -12,15 +12,11 @@ class PutTracePointRequest(BaseRequest):
         self.line_no = request.get("lineNo", -1)
         self.enable_tracing = request.get("enableTracing")
         self.condition = request.get("conditionExpression")
+        self.tags = request.get("tags", set())
         self.expire_secs = min(int(request.get("expireSecs", constants.TRACEPOINT_DEFAULT_EXPIRY_SECS)),
                                constants.TRACEPOINT_MAX_EXPIRY_SECS)
         self.expire_count = min(int(request.get("expireCount", constants.TRACEPOINT_DEFAULT_EXPIRY_COUNT)),
                                 constants.TRACEPOINT_MAX_EXPIRY_COUNT)
-
-        if self.expire_secs == -1:
-            self.expire_secs = constants.TRACEPOINT_DEFAULT_EXPIRY_SECS
-        if self.expire_count == -1:
-            self.expire_count = constants.TRACEPOINT_DEFAULT_EXPIRY_COUNT
 
     def get_id(self):
         return self.id

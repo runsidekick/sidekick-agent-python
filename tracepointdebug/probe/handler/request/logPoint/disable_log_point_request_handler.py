@@ -1,6 +1,6 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.log_point_manager import LogPointManager
+from tracepointdebug.probe.breakpoints.logpoint import LogPointManager
 from tracepointdebug.probe.request.logPoint.disable_log_point_request import DisableLogPointRequest
 from tracepointdebug.probe.response.logPoint.disable_log_point_response import DisableLogPointResponse
 

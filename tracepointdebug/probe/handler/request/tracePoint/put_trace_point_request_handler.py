@@ -1,8 +1,8 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.request.put_trace_point_request import PutTracePointRequest
-from tracepointdebug.probe.response.put_trace_point_response import PutTracePointResponse
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.request.tracePoint.put_trace_point_request import PutTracePointRequest
+from tracepointdebug.probe.response.tracePoint.put_trace_point_response import PutTracePointResponse
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 from tracepointdebug.utils.validation import validate_file_name_and_line_no
 
 
@@ -26,7 +26,8 @@ class PutTracePointRequestHandler(RequestHandler):
             trace_point_manager.put_trace_point(request.trace_point_id, request.file, request.file_hash,
                                                 request.line_no,
                                                 request.get_client(), request.expire_secs,
-                                                request.expire_count, request.enable_tracing, request.condition)
+                                                request.expire_count, request.enable_tracing, request.condition,
+                                                request.tags)
 
             trace_point_manager.publish_application_status()
             if request.get_client() is not None:

@@ -1,1 +1,3 @@
 from .filter_tracepoints_response_handler import FilterTracePointsResponseHandler
+from .filter_logpoints_response_handler import FilterLogPointsResponseHandler
+from .get_config_response_handler import GetConfigResponseHandler

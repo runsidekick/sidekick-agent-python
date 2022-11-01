@@ -1,8 +1,8 @@
 from tracepointdebug.application.application import Application
 from tracepointdebug.broker.handler.request.request_handler import RequestHandler
-from tracepointdebug.probe.request.update_trace_point_request import UpdateTracePointRequest
-from tracepointdebug.probe.response.update_trace_point_response import UpdateTracePointResponse
-from tracepointdebug.probe.trace_point_manager import TracePointManager
+from tracepointdebug.probe.request.tracePoint.update_trace_point_request import UpdateTracePointRequest
+from tracepointdebug.probe.response.tracePoint.update_trace_point_response import UpdateTracePointResponse
+from tracepointdebug.probe.breakpoints.tracepoint import TracePointManager
 
 
 class UpdateTracePointRequestHandler(RequestHandler):
@@ -24,7 +24,7 @@ class UpdateTracePointRequestHandler(RequestHandler):
             trace_point_manager.update_trace_point(request.trace_point_id,
                                                    request.get_client(), request.expire_secs,
                                                    request.expire_count, request.enable_tracing, request.condition,
-                                                   disable=request.disable)
+                                                   disable=request.disable, tags=request.tags)
 
             trace_point_manager.publish_application_status()
             if request.get_client() is not None:
