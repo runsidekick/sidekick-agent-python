@@ -1,2 +1,3 @@
 from .disable_probe_tag_request_handler import DisableProbeTagRequestHandler
 from .enable_probe_tag_request_handler import EnableProbeTagRequestHandler
+from .remove_probe_tag_request_handler import RemoveProbeTagRequestHandler

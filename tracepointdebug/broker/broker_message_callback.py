@@ -7,7 +7,7 @@ from tracepointdebug.probe.handler import ( DisableTracePointRequestHandler,
     UpdateTracePointRequestHandler, FilterTracePointsResponseHandler, DisableLogPointRequestHandler, 
     EnableLogPointRequestHandler, PutLogPointRequestHandler, RemoveLogPointRequestHandler, UpdateLogPointRequestHandler,
     FilterLogPointsResponseHandler, EnableProbeTagRequestHandler, DisableProbeTagRequestHandler, GetConfigResponseHandler, 
-    AttachRequestHandler, DetachRequestHandler, UpdateConfigRequestHandler)
+    AttachRequestHandler, DetachRequestHandler, UpdateConfigRequestHandler, RemoveProbeTagRequestHandler)
 from tracepointdebug.utils import debug_logger
 
 MESSAGE_REQUEST_TYPE = "Request"
@@ -28,6 +28,7 @@ REQUEST_HANDLER_MAP = {
 
     "EnableProbeTagRequest": EnableProbeTagRequestHandler,
     "DisableProbeTagRequest": DisableProbeTagRequestHandler,
+    "RemoveProveTagRequest": RemoveProbeTagRequestHandler,
 
     "UpdateConfigRequest": UpdateConfigRequestHandler,
     "AttachRequest": AttachRequestHandler,
