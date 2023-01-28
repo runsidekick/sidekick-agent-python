@@ -26,6 +26,11 @@ class TagManager(object):
         self.log_point_manager.disable_tag(tag, client)
         self._publish_status(client)
 
+    def remove_tag(self, tag, client):
+        self.trace_point_manager.remove_tag(tag, client)
+        self.log_point_manager.remove_tag(tag, client)
+        self._publish_status(client)
+
     def _publish_status(self, client):
         self.trace_point_manager.publish_application_status()
         self.log_point_manager.publish_application_status()

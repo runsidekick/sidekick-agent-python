@@ -114,6 +114,12 @@ class TracePointManager(object):
                     for trace_point_id in trace_point_ids:
                         self.disable_trace_point(trace_point_id, client)
 
+    def remove_tag(self, tag, client):
+        with self._lock:
+            if tag in self._tagged_trace_points:
+                logger.info("Removing tracepoint tag %s from client: %s" % (tag, client))
+                del self._tagged_trace_points[tag]
+
     def expire_trace_point(self, trace_point):
         with self._lock:
             if trace_point.timer is not None:
