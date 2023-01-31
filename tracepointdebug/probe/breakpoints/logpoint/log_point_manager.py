@@ -115,6 +115,12 @@ class LogPointManager(object):
                     for log_point_id in log_point_ids:
                         self.disable_log_point(log_point_id, client)
 
+    def remove_tag(self, tag, client):
+        with self._lock:
+            if tag in self._tagged_log_points:
+                logger.info("Removing logpoint tag %s from client: %s" % (tag, client))
+                del self._tagged_log_points[tag]
+
     def expire_log_point(self, log_point):
         with self._lock:
             if log_point.timer is not None:
