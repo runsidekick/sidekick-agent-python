@@ -85,7 +85,7 @@ elif sys.version_info[0] == 3:
 
 setup(
     name='sidekick-agent-python',
-    version='0.1.1',
+    version='0.1.2',
     packages=find_packages(exclude=('tests', 'tests.*',)),
     include_package_data=True,
     author='Thundra',
