@@ -63,7 +63,7 @@ jobs:
         with:
           name: artifact
           path: wheelhouse
-      - uses: pypa/gh-action-pypi-publish@master
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: ${{ secrets.SIDEKICK_PYPI_USERNAME }}
           password: ${{ secrets.SIDEKICK_PYPI_PASSWORD }}
